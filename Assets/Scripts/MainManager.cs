@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class MainManager : MonoBehaviour
 {
     public Brick BrickPrefab;
-    public int LineCount = 6;
+    public int LineCount = 3;
     public Rigidbody Ball;
 
     public Text ScoreText;
@@ -59,14 +59,41 @@ public class MainManager : MonoBehaviour
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+
+        int[] hitNumArray;
+        int[] pointCountArray = new [] {1,1,2,2,5,5,7,7};
+
+        // If the difficulty is Super Hard - some blocks will take multiple hits to break
+        if (MenuManager.instance.DifficultyLevel == MenuManager.DifficultyLevels.superHard)
+            hitNumArray = new[] { 1,1,2,2,3,3,4,4};
+        else
+            hitNumArray = new[] { 1,1,1,1,1,1,1,1};
+
+        // Determine the number of lines in gameplay from the difficulty level selected
+        switch(MenuManager.instance.DifficultyLevel)
+        {
+            case MenuManager.DifficultyLevels.easy:
+                LineCount = 4;
+                break;
+            case MenuManager.DifficultyLevels.medium:
+                LineCount = 6;
+                break;
+            case MenuManager.DifficultyLevels.hard:
+            case MenuManager.DifficultyLevels.superHard:
+                LineCount = 8;
+                break;
+            default:
+                LineCount = 4;
+                break;
+        }
+
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
             {
                 Vector3 position = new Vector3(-1.5f + step * x, 2.5f + i * 0.3f, 0);
                 var brick = Instantiate(BrickPrefab, position, Quaternion.identity);
+                brick.NumberOfHits = hitNumArray[i];
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
             }

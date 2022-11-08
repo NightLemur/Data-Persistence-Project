@@ -7,8 +7,9 @@ using UnityEngine.Events;
 public class Brick : MonoBehaviour
 {
     public UnityEvent<int> onDestroyed;
-    
-    public int PointValue;
+
+    public int NumberOfHits; // The amount of hits it takes to destroy this brick
+    public int PointValue; // The point value, per hit, to destroy this block
 
     void Start()
     {
@@ -36,8 +37,30 @@ public class Brick : MonoBehaviour
     private void OnCollisionEnter(Collision other)
     {
         onDestroyed.Invoke(PointValue);
-        
+        NumberOfHits--;
+
+
         //slight delay to be sure the ball have time to bounce
-        Destroy(gameObject, 0.2f);
+        if (NumberOfHits <= 0)
+            Destroy(gameObject, 0.2f);
+        else
+        {
+            // Changing the color of the block to indicate hits left to go
+            var renderer = GetComponentInChildren<Renderer>();
+            MaterialPropertyBlock block = new MaterialPropertyBlock();
+            switch (NumberOfHits)
+            {
+                case 1:
+                    block.SetColor("_BaseColor", Color.green);
+                    break;
+                case 2:
+                    block.SetColor("_BaseColor", Color.yellow);
+                    break;
+                case 3:
+                    block.SetColor("_BaseColor", Color.blue);
+                    break;
+            }
+            renderer.SetPropertyBlock(block);
+        }
     }
 }
