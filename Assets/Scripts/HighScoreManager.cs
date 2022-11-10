@@ -6,86 +6,24 @@ using UnityEngine.UI;
 
 public class HighScoreManager : MonoBehaviour
 {
+    public Animator highScoreAnimator;
     public Button BackButton;
     public Button ForwardButton;
-    public RectTransform Underline;
-    public Text ScoresText;
-    public Text NamesText;
-    public Text DifficultyText;
+    public HighScoreContainer HighScoreContainer;
 
-    MainManager.SaveData saveData;
-    MenuManager.DifficultyLevels difficulty;
+    public static MainManager.SaveData saveData;
+    public static MenuManager.DifficultyLevels difficulty;
 
-    // Start is called before the first frame update
+    // Initialize the High Score board based on current difficulty
     void Start()
     {
         difficulty = MenuManager.instance.DifficultyLevel;
         saveData = MainManager.SaveData.Load();
-        UpdateHighScoreTable();
-
+        HighScoreContainer.UpdateHighScoreTable();
         HandleButtonEnabling();
     }
 
-    private void UpdateHighScoreTable()
-    {
-        string[] names;
-        int[] scores;
-
-        // Adjust the Title of the screen accordingly
-        switch (difficulty)
-        {
-            case MenuManager.DifficultyLevels.easy:
-            default:
-
-                DifficultyText.text = "High Scores: (Easy):";
-                Underline.sizeDelta = new Vector2(175f, 2.4f);
-                names = saveData.EasyPlayerNames;
-                scores = saveData.EasyPlayerScores;
-
-                break;
-
-            case MenuManager.DifficultyLevels.medium:
-
-                DifficultyText.text = "High Scores: (Medium):";
-                Underline.sizeDelta = new Vector2(196f, 2.4f);
-                names = saveData.MediumPlayerNames;
-                scores = saveData.MediumPlayerScores;
-
-                break;
-
-            case MenuManager.DifficultyLevels.hard:
-
-                DifficultyText.text = "High Scores: (Hard):";
-                Underline.sizeDelta = new Vector2(171f, 2.4f);
-                names = saveData.HardPlayerNames;
-                scores = saveData.HardPlayerScores;
-
-                break;
-
-            case MenuManager.DifficultyLevels.superHard:
-
-                DifficultyText.text = "High Scores: (Super Hard):";
-                Underline.sizeDelta = new Vector2(235f, 2.4f);
-                names = saveData.SuperHardPlayerNames;
-                scores = saveData.SuperHardPlayerScores;
-
-                break;
-        }
-
-        string namesText = "";
-        string scoresText = "";
-
-        // Populate the names and scores from the Save Data
-        for (int i = 0; i < 10; i++)
-        {
-            namesText += names[i] == "" ? "AAA\n" : names[i] + "\n";
-            scoresText += scores[i] + "\n";
-        }
-
-        NamesText.text = namesText;
-        ScoresText.text = scoresText;
-    }
-
+    // Disables/Enabled the Back and Forward arrow buttons as Player switches between high score lists
     private void HandleButtonEnabling()
     {
         BackButton.interactable = difficulty != MenuManager.DifficultyLevels.easy;
@@ -101,16 +39,14 @@ public class HighScoreManager : MonoBehaviour
     public void OnBackButtonClicked()
     {
         difficulty--;
-        UpdateHighScoreTable();
-
         HandleButtonEnabling();
+        highScoreAnimator.SetTrigger("FadeOutLeft");
     }
 
     public void OnForwardButtonClicked()
     {
         difficulty++;
-        UpdateHighScoreTable();
-
         HandleButtonEnabling();
+        highScoreAnimator.SetTrigger("FadeOutRight");
     }
 }
