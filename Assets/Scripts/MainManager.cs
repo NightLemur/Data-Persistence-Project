@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+    public AudioSource audioSource;
     public Brick BrickPrefab;
     public int LineCount = 3;
     public Rigidbody Ball;
@@ -36,13 +37,13 @@ public class MainManager : MonoBehaviour
 
         public SaveData()
         {
-            EasyPlayerNames = new string[10];
+            EasyPlayerNames = EmptyArray();
             EasyPlayerScores = new int[10];
-            MediumPlayerNames = new string[10];
+            MediumPlayerNames = EmptyArray();
             MediumPlayerScores = new int[10];
-            HardPlayerNames = new string[10];
+            HardPlayerNames = EmptyArray();
             HardPlayerScores = new int[10];
-            SuperHardPlayerNames = new string[10];
+            SuperHardPlayerNames = EmptyArray();
             SuperHardPlayerScores = new int[10];
         }
 
@@ -64,13 +65,25 @@ public class MainManager : MonoBehaviour
             string json = JsonUtility.ToJson(this);
             File.WriteAllText(Application.persistentDataPath + "/DataPersistenceSave.json", json);
         }
+
+        private string[] EmptyArray()
+        {
+            string[] result = new string[10];
+
+            for (int i = 0; i < 10; i++)
+            {
+                result[i] = "";
+            }
+
+            return result;
+        }
     }
     
     // Start is called before the first frame update
     void Start()
     {
         SavedData = SaveData.Load();
-        ScoreText.text = $" {MenuManager.instance.PlayerName} \nScore : 0";
+        ScoreText.text = $" {OptionsManager.instance.SavedData.PlayerName} \nScore : 0";
 
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
@@ -79,30 +92,30 @@ public class MainManager : MonoBehaviour
         int[] pointCountArray = new [] {1,1,2,2,5,5,7,7};
 
         // If the difficulty is Super Hard - some blocks will take multiple hits to break
-        if (MenuManager.instance.DifficultyLevel == MenuManager.DifficultyLevels.superHard)
+        if (OptionsManager.instance.SavedData.DifficultyLevel == OptionsManager.DifficultyLevels.superHard)
             hitNumArray = new[] { 1,1,2,2,3,3,4,4};
         else
             hitNumArray = new[] { 1,1,1,1,1,1,1,1};
 
         // Determine the number of lines in gameplay from the difficulty level selected
-        switch(MenuManager.instance.DifficultyLevel)
+        switch(OptionsManager.instance.SavedData.DifficultyLevel)
         {
-            case MenuManager.DifficultyLevels.easy:
+            case OptionsManager.DifficultyLevels.easy:
                 LineCount = 4;
                 ScoreText1.text = "Best Score (Easy) : " + (SavedData.EasyPlayerNames[0] == "" ? "N/A" : 
                     SavedData.EasyPlayerNames[0] + " : " + SavedData.EasyPlayerScores[0]);
                 break;
-            case MenuManager.DifficultyLevels.medium:
+            case OptionsManager.DifficultyLevels.medium:
                 LineCount = 6;
                 ScoreText1.text = "Best Score (Medium) : " + (SavedData.MediumPlayerNames[0] == "" ? "N/A" :
                     SavedData.MediumPlayerNames[0] + " : " + SavedData.MediumPlayerScores[0]);
                 break;
-            case MenuManager.DifficultyLevels.hard:
+            case OptionsManager.DifficultyLevels.hard:
                 LineCount = 8;
                 ScoreText1.text = "Best Score (Hard) : " + (SavedData.HardPlayerNames[0] == "" ? "N/A" :
                     SavedData.HardPlayerNames[0] + " : " + SavedData.HardPlayerScores[0]);
                 break;
-            case MenuManager.DifficultyLevels.superHard:
+            case OptionsManager.DifficultyLevels.superHard:
                 LineCount = 8;
                 ScoreText1.text = "Best Score (Super Hard) : " + (SavedData.SuperHardPlayerNames[0] == "" ? "N/A" :
                     SavedData.SuperHardPlayerNames[0] + " : " + SavedData.SuperHardPlayerScores[0]);
@@ -124,6 +137,12 @@ public class MainManager : MonoBehaviour
             }
         }
 
+        // Set the Audio Source volume, based on Options Save
+        if (OptionsManager.instance.SavedData.BkgdMusicValue > 0)
+            audioSource.volume = OptionsManager.instance.SavedData.BkgdMusicValue / 10f;
+        else
+            audioSource.volume = 0f;
+
     }
 
     private void Update()
@@ -139,6 +158,8 @@ public class MainManager : MonoBehaviour
 
                 Ball.transform.SetParent(null);
                 Ball.AddForce(forceDir * 2.0f, ForceMode.VelocityChange);
+
+                audioSource.Play();
             }
         }
         else if (m_GameOver)
@@ -153,7 +174,7 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $" {MenuManager.instance.PlayerName} \nScore : {m_Points}";
+        ScoreText.text = $" {OptionsManager.instance.SavedData.PlayerName} \nScore : {m_Points}";
     }
 
     public void GameOver()
@@ -166,10 +187,10 @@ public class MainManager : MonoBehaviour
         string[] playerNames;
         int[] playerScores;
 
-        switch (MenuManager.instance.DifficultyLevel)
+        switch (OptionsManager.instance.SavedData.DifficultyLevel)
         {
             default:
-            case MenuManager.DifficultyLevels.easy:
+            case OptionsManager.DifficultyLevels.easy:
 
                 scoreText = "Best Score (Easy) : ";
                 playerNames = SavedData.EasyPlayerNames;
@@ -177,7 +198,7 @@ public class MainManager : MonoBehaviour
 
                 break;
 
-            case MenuManager.DifficultyLevels.medium:
+            case OptionsManager.DifficultyLevels.medium:
 
                 scoreText = "Best Score (Medium) : ";
                 playerNames = SavedData.MediumPlayerNames;
@@ -185,7 +206,7 @@ public class MainManager : MonoBehaviour
 
                 break;
 
-            case MenuManager.DifficultyLevels.hard:
+            case OptionsManager.DifficultyLevels.hard:
 
                 scoreText = "Best Score (Hard) : ";
                 playerNames = SavedData.HardPlayerNames;
@@ -193,7 +214,7 @@ public class MainManager : MonoBehaviour
 
                 break;
 
-            case MenuManager.DifficultyLevels.superHard:
+            case OptionsManager.DifficultyLevels.superHard:
 
                 scoreText = "Best Score (Super Hard) : ";
                 playerNames = SavedData.SuperHardPlayerNames;
@@ -214,7 +235,7 @@ public class MainManager : MonoBehaviour
                     {
                         if (j == i)
                         {
-                            playerNames[j] = MenuManager.instance.PlayerName;
+                            playerNames[j] = OptionsManager.instance.SavedData.PlayerName;
                             playerScores[j] = m_Points;
                         }    
                         else
@@ -225,7 +246,7 @@ public class MainManager : MonoBehaviour
                     }
 
                     if (i == 0) // The Top spot changed: Update the score text now
-                        ScoreText1.text = scoreText + MenuManager.instance.PlayerName + " : " + m_Points;
+                        ScoreText1.text = scoreText + OptionsManager.instance.SavedData.PlayerName + " : " + m_Points;
 
                     SavedData.Save();
                     break;
@@ -234,14 +255,16 @@ public class MainManager : MonoBehaviour
             else
             {
                 if (i == 0) // The Top spot changed: Update the score text now
-                    ScoreText1.text = scoreText + MenuManager.instance.PlayerName + " : " + m_Points;
+                    ScoreText1.text = scoreText + OptionsManager.instance.SavedData.PlayerName + " : " + m_Points;
 
-                playerNames[i] = MenuManager.instance.PlayerName;
+                playerNames[i] = OptionsManager.instance.SavedData.PlayerName;
                 playerScores[i] = m_Points;
                 SavedData.Save();
                 break;
             }
         }
+
+        audioSource.Stop();
     }
 
     // Public UI Methods

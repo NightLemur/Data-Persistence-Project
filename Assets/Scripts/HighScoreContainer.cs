@@ -19,7 +19,7 @@ public class HighScoreContainer : MonoBehaviour
         // Adjust the Title of the screen accordingly
         switch (HighScoreManager.difficulty)
         {
-            case MenuManager.DifficultyLevels.easy:
+            case OptionsManager.DifficultyLevels.easy:
             default:
 
                 DifficultyText.text = "High Scores: (Easy):";
@@ -29,7 +29,7 @@ public class HighScoreContainer : MonoBehaviour
 
                 break;
 
-            case MenuManager.DifficultyLevels.medium:
+            case OptionsManager.DifficultyLevels.medium:
 
                 DifficultyText.text = "High Scores: (Medium):";
                 Underline.sizeDelta = new Vector2(196f, 2.4f);
@@ -38,7 +38,7 @@ public class HighScoreContainer : MonoBehaviour
 
                 break;
 
-            case MenuManager.DifficultyLevels.hard:
+            case OptionsManager.DifficultyLevels.hard:
 
                 DifficultyText.text = "High Scores: (Hard):";
                 Underline.sizeDelta = new Vector2(171f, 2.4f);
@@ -47,7 +47,7 @@ public class HighScoreContainer : MonoBehaviour
 
                 break;
 
-            case MenuManager.DifficultyLevels.superHard:
+            case OptionsManager.DifficultyLevels.superHard:
 
                 DifficultyText.text = "High Scores: (Super Hard):";
                 Underline.sizeDelta = new Vector2(235f, 2.4f);

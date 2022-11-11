@@ -11,8 +11,18 @@ public class Brick : MonoBehaviour
     public int NumberOfHits; // The amount of hits it takes to destroy this brick
     public int PointValue; // The point value, per hit, to destroy this block
 
+    AudioSource audioSource; // The Audio Source on this GameComponent
+
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
+        // Set the Audio Source volume, based on Options Save
+        if (OptionsManager.instance.SavedData.SfxValue > 0)
+            audioSource.volume = OptionsManager.instance.SavedData.SfxValue / 10f;
+        else
+            audioSource.volume = 0f;
+
         var renderer = GetComponentInChildren<Renderer>();
 
         MaterialPropertyBlock block = new MaterialPropertyBlock();
@@ -62,5 +72,8 @@ public class Brick : MonoBehaviour
             }
             renderer.SetPropertyBlock(block);
         }
+
+        // Play the "Hit" Sound Effect
+        audioSource.Play();
     }
 }

@@ -12,12 +12,12 @@ public class HighScoreManager : MonoBehaviour
     public HighScoreContainer HighScoreContainer;
 
     public static MainManager.SaveData saveData;
-    public static MenuManager.DifficultyLevels difficulty;
+    public static OptionsManager.DifficultyLevels difficulty;
 
     // Initialize the High Score board based on current difficulty
     void Start()
     {
-        difficulty = MenuManager.instance.DifficultyLevel;
+        difficulty = OptionsManager.instance.SavedData.DifficultyLevel;
         saveData = MainManager.SaveData.Load();
         HighScoreContainer.UpdateHighScoreTable();
         HandleButtonEnabling();
@@ -26,8 +26,8 @@ public class HighScoreManager : MonoBehaviour
     // Disables/Enabled the Back and Forward arrow buttons as Player switches between high score lists
     private void HandleButtonEnabling()
     {
-        BackButton.interactable = difficulty != MenuManager.DifficultyLevels.easy;
-        ForwardButton.interactable = difficulty != MenuManager.DifficultyLevels.superHard;
+        BackButton.interactable = difficulty != OptionsManager.DifficultyLevels.easy;
+        ForwardButton.interactable = difficulty != OptionsManager.DifficultyLevels.superHard;
     }
 
     // Public UI Methods
